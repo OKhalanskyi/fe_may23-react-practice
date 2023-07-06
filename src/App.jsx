@@ -6,6 +6,7 @@ import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 import { UserFilterPanel } from './components/UserFilterPanel/UserFilterPanel';
+import { Input } from './components/Input/Input';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -14,16 +15,21 @@ import { UserFilterPanel } from './components/UserFilterPanel/UserFilterPanel';
 //   return null;
 // });
 
-function getProducts(products, user) {
+function getProducts(products, user, query) {
+  const fixedQuery = query.toLowerCase();
+  const filteredByQuery = products
+    .filter(product => product.name.toLowerCase().includes(fixedQuery));
+
   if (user === 0) {
-    return products;
+    return filteredByQuery;
   }
 
-  return products.filter(product => product.user.id === user.id);
+  return filteredByQuery.filter(product => product.user.id === user.id);
 }
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(0);
+  const [query, setQuery] = useState('');
 
   const products = productsFromServer.map((product) => {
     const copyProduct = { ...product };
@@ -35,10 +41,10 @@ export const App = () => {
     copyProduct.icon = category.icon;
     copyProduct.user = user;
 
-    return product;
+    return copyProduct;
   });
 
-  const preparedProducts = getProducts(products, selectedUser);
+  const preparedProducts = getProducts(products, selectedUser, query);
 
   return (
     <div className="section">
@@ -55,30 +61,7 @@ export const App = () => {
               onSelectUser={setSelectedUser}
             />
 
-            <div className="panel-block">
-              <p className="control has-icons-left has-icons-right">
-                <input
-                  data-cy="SearchField"
-                  type="text"
-                  className="input"
-                  placeholder="Search"
-                  value="qwe"
-                />
-
-                <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
-                </span>
-
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
-              </p>
-            </div>
+            <Input value={query} onChange={setQuery} />
 
             <div className="panel-block is-flex-wrap-wrap">
               <a

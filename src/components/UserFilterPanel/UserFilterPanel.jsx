@@ -23,6 +23,7 @@ export const UserFilterPanel = ({ users, selectedUserId, onSelectUser }) => {
       {
         users.map(user => (
           <a
+            key={user.id}
             data-cy="FilterUser"
             href={`#/${user.name}`}
             onClick={() => selectUser(user)}
