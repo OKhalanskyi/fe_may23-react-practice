@@ -60,7 +60,7 @@ const Table = ({ products }) => (
     <tbody>
       {
           products.map(product => (
-            <TableRow product={product} key={product.id}/>
+            <TableRow product={product} key={product.id} />
           ))
         }
     </tbody>
