@@ -86,6 +86,7 @@ export const App = () => {
                 onClick={() => {
                   setQuery('');
                   setSelectedUser(0);
+                  setSelectedCategories([]);
                 }}
               >
                 Reset all filters
