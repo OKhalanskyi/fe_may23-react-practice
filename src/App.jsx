@@ -7,6 +7,8 @@ import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 import { UserFilterPanel } from './components/UserFilterPanel/UserFilterPanel';
 import { Input } from './components/Input/Input';
+import { CategoriesFilter } from
+'./components/CategoriesFilter/CategoriesFilter';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -15,21 +17,27 @@ import { Input } from './components/Input/Input';
 //   return null;
 // });
 
-function getProducts(products, user, query) {
+function getProducts(products, user, query, categories) {
   const fixedQuery = query.toLowerCase();
   const filteredByQuery = products
     .filter(product => product.name.toLowerCase().includes(fixedQuery));
 
+  const filteredByCategories = categories.length === 0
+    ? filteredByQuery
+    : filteredByQuery
+      .filter(product => categories.includes(product.categoryId));
+
   if (user === 0) {
-    return filteredByQuery;
+    return filteredByCategories;
   }
 
-  return filteredByQuery.filter(product => product.user.id === user.id);
+  return filteredByCategories.filter(product => product.user.id === user.id);
 }
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(0);
   const [query, setQuery] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   const products = productsFromServer.map((product) => {
     const copyProduct = { ...product };
@@ -44,7 +52,8 @@ export const App = () => {
     return copyProduct;
   });
 
-  const preparedProducts = getProducts(products, selectedUser, query);
+  const preparedProducts
+    = getProducts(products, selectedUser, query, selectedCategories);
 
   return (
     <div className="section">
@@ -63,46 +72,11 @@ export const App = () => {
 
             <Input value={query} onChange={setQuery} />
 
-            <div className="panel-block is-flex-wrap-wrap">
-              <a
-                href="#/"
-                data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
-              >
-                All
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
-            </div>
+            <CategoriesFilter
+              totalCategories={categoriesFromServer}
+              selectedCategories={selectedCategories}
+              onCategorySelected={setSelectedCategories}
+            />
 
             <div className="panel-block">
               <a
